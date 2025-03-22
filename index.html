@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirmes</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 80%;
+        }
+        .button {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+        .button1 {
+            background-color: red;
+        }
+        .button2 {
+            background-color: blue;
+        }
+        .button3 {
+            background-color: rgb(0, 235, 0);
+        }
+        .button4 {
+            background-color: orange;
+        }
+        .button5 {
+            background-color: rgb(0, 238, 255);
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-container">
+        <a href="/Rides/breakdancer-old/index.html" class="button button1">Breakdancer Old</a>
+        <a href="/Rides/Shaker/index.html" class="button button2">Swing</a>
+        <a href="/Rides/Dom-Dancer/index.html" class="button button3">Dom Dancer</a>
+        <a href="/Rides/XXL/index.html" class="button button4">Swing</a>
+        <a href="/Rides/Booster/index.html" class="button button5">Booster</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+/*
+const ssaoPassPOV = new SSAOPass(scene, cameraPOV, window.innerWidth, window.innerHeight);
+ssaoPassPOV.kernelRadius = 16; // Adjust the radius for the spread of shadows
+ssaoPassPOV.minDistance = 0.005;
+ssaoPassPOV.maxDistance = 0.5;
+composerPOV.addPass(ssaoPassPOV);
+//composerPOV.addPass(bloomPass);
+const ssrPassPOV = new SSRPass({
+    renderer,
+    scene,
+    camera: cameraPOV,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    groundReflector: null, // Optionally, add a plane for specific reflections like water
+    selects: null, // Optionally, specify which objects should have reflections
+    opacity: 1.0,
+    thickness: 0.018,
+    maxDistance: 5,
+});
+composerPOV.addPass(ssrPassPOV);
+*/
+
+
+/*const bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    0.1,    // strength
+    0.1,    // radius
+    2    // threshold
+);
+composer.addPass(bloomPass);
+const ssaoPass = new SSAOPass(scene, camera, window.innerWidth, window.innerHeight);
+ssaoPass.kernelRadius = 16; // Adjust the radius for the spread of shadows
+ssaoPass.minDistance = 0.005;
+ssaoPass.maxDistance = 0.5;
+composer.addPass(ssaoPass);
+const ssrPass = new SSRPass({
+    renderer,
+    scene,
+    camera: camera,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    groundReflector: null, // Optionally, add a plane for specific reflections like water
+    selects: null, // Optionally, specify which objects should have reflections
+    opacity: 1.0,
+    thickness: 0.018,
+    maxDistance: 5,
+});
+composer.addPass(ssrPass);
+*/
