@@ -17,7 +17,7 @@ import { LoaderHelper } from './LoaderHelper.js';
 let lastTime = Date.now(); 
 let deltaTime = 0;
 let fps = 0;
-let loadedclass = new LoaderHelper(22, hideLoadingScreenAndStart);
+let loadedclass = new LoaderHelper(23, hideLoadingScreenAndStart);
 //Intialise the general variables 
 let plateSpeed = 0;
 let gondelSpeed = 0;
@@ -183,7 +183,9 @@ async function loadBaseDisc(){
 }
 
 async function loadBackgroundScene(){
-    environment = await loadModel('models/breakerBackground1.glb');
+    environment = await loadModel('models/DomDancerBase.glb');
+    environment.rotation.y = -Math.PI / 2;
+    environment.position.y = -0.3;
     scene.add(environment);
     loadedclass.add();
 }
@@ -356,7 +358,7 @@ function startFunctions(){
     loadGondelModels();
     loadKreuze();
     loadBaseDisc();
-    //loadBackgroundScene();
+    loadBackgroundScene();
     loadHDRI('textures/hdri/nightsky.hdr');
     //createSunLight();
 }
