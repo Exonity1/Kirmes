@@ -400,3 +400,50 @@ function createSunLight(){
     scene.add(sunLight);
     scene.add(new THREE.AmbientLight(0xffffff, 0.1));
 }
+
+
+
+
+
+function createSpotlights(scene) {
+    const numSpotlights = 8;
+    const radius = 8; // Adjust as needed
+    const angleIncrement = (Math.PI * 2) / numSpotlights;
+    const rainbowColors = [
+        0xff0000, // Red
+        0xff7f00, // Orange
+        0xffff00, // Yellow
+        0x00ff00, // Green
+        0x00ffff, // Cyan
+        0x0000ff, // Blue
+        0x8b00ff, // Indigo
+        0xff00ff, // Violet
+        0xff0000, // Red (repeated to close the circle)
+        0xff7f00, // Orange (repeated to close the circle)
+        0xffff00, // Yellow (repeated to close the circle)
+        0x00ff00  // Green (repeated to close the circle)
+    ];
+
+    for (let i = 0; i < numSpotlights; i++) {
+        const angle = i * angleIncrement;
+        const x = radius * Math.cos(angle);
+        const z = radius * Math.sin(angle);
+
+        const color = rainbowColors[i];
+
+        const spotlight = new THREE.SpotLight(color);
+        spotlight.position.set(x, 20, z); // Adjust the y position as needed
+        spotlight.target.position.set(0, -20, 0); // Point down
+        spotlight.angle = Math.PI / 14; // Set angle
+        spotlight.penumbra = 0.05; // Set penumbra
+        spotlight.decay = 0.5; // Set decay
+        spotlight.distance = 0; // Set distance
+        spotlight.intensity = 30;
+        spotlight.castShadow = true;
+
+        scene.add(spotlight);
+        scene.add(spotlight.target);
+    }
+}
+
+createSpotlights(scene);
