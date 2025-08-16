@@ -46,6 +46,7 @@ function loadBaseModel() {
     // Called when the resource is loaded
     function(gltf) {
       console.log("Model loaded");
+      console.clear();
 
       // Get the model's scene
       let modelScene = gltf.scene;
@@ -332,7 +333,6 @@ function updateFPS() {
 let a = false;
 
 const switchElement1 = document.getElementById('mySwitch1');
-const switchElement2 = document.getElementById('mySwitch2');
 
 function animate() {
   requestAnimationFrame(animate);
@@ -348,10 +348,6 @@ function animate() {
   controls.update();
 
   world.step(1 / 60, deltaTime, 3);
-
-  if (switchElement2.checked) {
-    resetVelocity();
-  }
   //cannonDebugger.update();
 
 
@@ -368,8 +364,8 @@ function animate() {
   plateHingeConstraint.setMotorSpeed(plateSpeed*-1 * gasSpeed);
 
   updateFPS();
-  console.log( "plate" , plateSpeed);
-  console.log("gas", gasSpeed);
+  //console.log( "plate" , plateSpeed);
+  //console.log("gas", gasSpeed);
 
 }
 animate();
@@ -415,4 +411,31 @@ function resetVelocity() {
   Gondel2Body.angularVelocity.set(0, 0, 0);
 }
 
+var bremse = false;
 
+document.getElementById('bremse').addEventListener('click', function() {
+  bremse = !bremse;
+  applyGondelBremse();
+});
+
+function applyGondelBremse() {
+  if(bremse){
+    if (GondelConstraint1) {
+      GondelConstraint1.enableMotor();
+      GondelConstraint1.setMotorSpeed(0);      // Drehgeschwindigkeit
+      GondelConstraint1.motorMaxForce = 100000;
+    }
+    if (GondelConstraint2) {
+      GondelConstraint2.enableMotor();
+      GondelConstraint2.setMotorSpeed(0);      // Drehgeschwindigkeit
+      GondelConstraint2.motorMaxForce = 100000;
+    }
+  } else {
+    if (Gondel1Body) {
+      GondelConstraint1.disableMotor();
+    }
+    if (Gondel2Body) {
+      GondelConstraint2.disableMotor();
+    }
+  }
+}
