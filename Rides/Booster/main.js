@@ -331,19 +331,27 @@ function updateFPS() {
 
 let a = false;
 
-const switchElement = document.getElementById('mySwitch');
+const switchElement1 = document.getElementById('mySwitch1');
+const switchElement2 = document.getElementById('mySwitch2');
 
 function animate() {
   requestAnimationFrame(animate);
-  if (kmgspeedgondel1 != null && switchElement.checked){
+  if (kmgspeedgondel1 != null && switchElement1.checked){
     renderer.render(scene, cameraPOV);
   }else{
     renderer.render(scene, camera);
   }
+
+
+  
   
   controls.update();
 
   world.step(1 / 60, deltaTime, 3);
+
+  if (switchElement2.checked) {
+    resetVelocity();
+  }
   //cannonDebugger.update();
 
 
