@@ -53,7 +53,7 @@ const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.inner
 const composer = new EffectComposer(renderer);
 const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
-camera.position.set(10,5,10);
+camera.position.set(0,5,10);
 camera.lookAt(0,0,0);
 const controls = new OrbitControls(camera, renderer.domElement);
 
