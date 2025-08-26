@@ -59,6 +59,68 @@ const controls = new OrbitControls(camera, renderer.domElement);
 
 
 
+
+
+
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    SHADER
+
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+
+    // Shader-Code
+const vertexShader = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const fragmentShader = `
+  uniform float uTime;
+  varying vec2 vUv;
+
+  // Hilfsfunktion: HSV → RGB
+  vec3 hsv2rgb(vec3 c) {
+    vec3 rgb = clamp(
+      abs(mod(c.x * 6.0 + vec3(0.0, 4.0, 2.0),
+              6.0) - 3.0) - 1.0,
+      0.0,
+      1.0
+    );
+    return c.z * mix(vec3(1.0), rgb, c.y);
+  }
+
+  void main() {
+    float hue = mod(uTime * 0.1, 1.0); // läuft langsam durch 0.0–1.0
+    vec3 color = hsv2rgb(vec3(hue, 1.0, 1.0));
+    gl_FragColor = vec4(color, 1.0);
+  }
+`;
+
+// Material mit Shader
+const rainbowMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0.0 }
+  },
+  vertexShader,
+  fragmentShader
+});
+
+
+
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+
+
+
+
 startFunctions();
 
 
@@ -206,9 +268,24 @@ async function loadGondelModels(){
 async function loadKreuze(){
     for(let i = 0; i < 4; i++){
         let kreuz = {
-            kreuzBody: await loadModel('models/DancerKreuz.glb'),
-            kreuzPhysicsBody: new CANNON.Body({ mass: 1000, shape: new CANNON.Cylinder(2.1, 2.1, 0.1, 12), collisionFilterGroup: 0, collisionFilterMask: 0 })
+            kreuzBody: await loadModel('models/DomDancerKreuzShader_1.glb'),
+            kreuzPhysicsBody: new CANNON.Body({
+                mass: 1000,
+                shape: new CANNON.Cylinder(2.1, 2.1, 0.1, 12),
+                collisionFilterGroup: 0,
+                collisionFilterMask: 0
+            })
         }
+
+        // Hier gezielt Shader anwenden, wenn Materialname "Rainbow" enthält
+        kreuz.kreuzBody.traverse((child) => {
+            if (child.isMesh) {
+                if (child.material && child.material.name && child.material.name.includes("Rainbow")) {
+                    child.material = makeRainbowMaterial(child.material);
+                }
+            }
+        });
+
         gondelKreuze.push(kreuz);
         scene.add(kreuz.kreuzBody);
         world.addBody(kreuz.kreuzPhysicsBody);
@@ -219,7 +296,7 @@ async function loadKreuze(){
 
 
 
-function animate() {
+function animate(t) {
     requestAnimationFrame(animate);
     //cannonDebugger.update();
     
@@ -234,6 +311,7 @@ function animate() {
     syncBodies();
     if (switchElement1.checked) syncObjects(gondeln[0].gondelBody, camera ,0.7);    
     updateFPS();
+    updateShaders(t);
 }
 
 
@@ -360,6 +438,7 @@ function startFunctions(){
     loadBaseDisc();
     loadBackgroundScene();
     loadHDRI('textures/hdri/nightsky.hdr');
+    createSpotlights(scene);
     //createSunLight();
 }
 
@@ -446,4 +525,91 @@ function createSpotlights(scene) {
     }
 }
 
-createSpotlights(scene);
+function updateShaders(t) {
+    gondelKreuze.forEach(kreuz => {
+    kreuz.kreuzBody.traverse((child) => {
+      if (child.isMesh && child.material.userData.shaderUniforms) {
+        child.material.userData.shaderUniforms.uTime.value = t * 0.002;
+      }
+    });
+  });
+}
+
+function makeRainbowMaterial(baseMat) {
+  const mat = baseMat.clone();
+
+  mat.userData.shaderUniforms = { uTime: { value: 0 } };
+
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = mat.userData.shaderUniforms.uTime;
+
+    shader.fragmentShader =
+      `
+      uniform float uTime;
+      varying vec3 vLocalPosition;
+
+      vec3 hsv2rgb(vec3 c){
+          vec3 rgb = clamp(
+              abs(mod(c.x*6.0 + vec3(0.0,4.0,2.0), 6.0)-3.0)-1.0,
+              0.0,
+              1.0
+          );
+          return c.z * mix(vec3(1.0), rgb, c.y);
+      }
+      ` + shader.fragmentShader;
+
+    // BaseColor mit gestuftem Gradient
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <color_fragment>',
+      `
+        #include <color_fragment>
+
+        // Gradient strecken auf Y-Achse
+        float yScaled = vLocalPosition.y * 0.2; // 2.0 = strecken
+
+        // Gestufte Hue (z.B. 7 Stufen für Rainbow)
+        float steps = 5.0;
+        float hueBase = floor(mod(yScaled + uTime * 0.1, 1.0) * steps) / steps;
+
+        vec3 rainbowBase = hsv2rgb(vec3(hueBase, 1.0, 1.0));
+        diffuseColor.rgb = rainbowBase;
+      `
+    );
+
+    // Emission ebenfalls gestuft
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <emissivemap_fragment>',
+      `
+        #include <emissivemap_fragment>
+
+        float yScaledE = vLocalPosition.y * 0.2;
+        float stepsE = 5.0;
+        float hueEmissive = floor(mod(yScaledE + uTime * 0.1, 1.0) * stepsE) / stepsE;
+
+        vec3 rainbowEmissive = hsv2rgb(vec3(hueEmissive, 1.0, 1.0));
+        totalEmissiveRadiance = rainbowEmissive * 1.0;
+      `
+    );
+
+    // Vertex-Shader: Local Position übergeben
+    shader.vertexShader =
+      'varying vec3 vLocalPosition;\n' + shader.vertexShader;
+
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <begin_vertex>',
+      `
+        #include <begin_vertex>
+        vLocalPosition = position;
+      `
+    );
+
+    mat.userData.shader = shader;
+  };
+
+  return mat;
+}
+
+
+
+
+
