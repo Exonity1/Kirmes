@@ -218,7 +218,6 @@ function createGondelHinges() {
             i++
         }
     });
-    
 }
 
 async function loadCubeTower(){
@@ -447,6 +446,32 @@ document.getElementById('resetButton').addEventListener('click', resetVelocity);
 function resetVelocity() {
     gondeln.forEach(gondel => {;
         gondel.gondelPhysicsBody.angularVelocity.set(0,0,0);
+    });
+}
+
+window.addEventListener('keydown', (event) => {
+    if (event.code === 'Space' && !event.repeat) {
+        activateBrake();
+    }
+});
+
+window.addEventListener('keyup', (event) => {
+    if (event.code === 'Space') {
+        stopBreake();
+    }
+});
+
+function activateBrake() {
+    gondelHingeConstraints.forEach((constraint) => {
+        constraint.enableMotor();
+        constraint.setMotorSpeed(0);
+        constraint.setMotorMaxForce(5000);
+    });
+}
+
+function stopBreake() {
+    gondelHingeConstraints.forEach((constraint) => {
+        constraint.disableMotor();
     });
 }
 
